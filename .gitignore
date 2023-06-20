@@ -162,3 +162,10 @@ cython_debug/
 clusterizer.model/
 *.csv.gz
 *.csv
+
+# Scala
+.bsp
+.idea
+project/
+target/
+.DS_Store
