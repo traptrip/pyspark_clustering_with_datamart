@@ -14,9 +14,11 @@ services:
 
   store_dataset: 
     container_name: store_dataset
-    build: .
-    image: pythondestroyer/pyspark_clustering:main
-    command: python store_dataset.py
+    build:
+      context: ./data_storer
+      dockerfile: Dockerfile
+    image: pythondestroyer/scala_data_storer:main
+    command: sbt run
     volumes: 
       - ./data/:/app/data
     depends_on: 
@@ -25,4 +27,5 @@ services:
   redis: 
     container_name: redis
     image: redis:alpine3.18
-
+    ports: 
+      - 6379:6379

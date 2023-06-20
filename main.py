@@ -1,28 +1,38 @@
 import logging
 from pathlib import Path
+from pyspark.sql import SparkSession, SQLContext, DataFrame
 
 from src.utils import read_config
 from src.clusterizer import Clusterizer
-from src.redis import RedisBroker
 
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "configs/default.yml"
 
 
 def main(config):
-    redis_broker = RedisBroker(config.redis)
+    spark = (
+        SparkSession.builder.master("local[*]")
+        .appName("OpenFoodClusterizer")
+        .config("spark.num.executors", "2")
+        .config("spark.executor.cores", "4")
+        .config("spark.executor.memory", "4g")
+        .config("spark.driver.memory", "4g")
+        .config("spark.jars", "datamart/out/artifacts/datamart_jar/datamart.jar")
+        .getOrCreate()
+    )
+    sc = spark.sparkContext
+    sqlContext = SQLContext(spark)
 
-    logging.info("Reading raw dataset")
-    while True:
-        raw_data = redis_broker.get(config.data.raw_dataset_name)
-        if raw_data is not None:
-            break
+    logging.info("Prepare dataset")
+    jvm_df = sc._jvm.datamart.DataMart.getTrainData()
 
-    model = Clusterizer(config, raw_data)
-    metric = model.fit()
+    data = DataFrame(jvm_df, sqlContext)
+
+    model = Clusterizer(config, spark)
+    metric, prediction = model.fit(data)
     print(f"Metric: {metric}")
 
-    redis_broker.set("metric", metric)
-    logging.info("Metric value sended to redis")
+    logging.info("Push prediction to DataMart")
+    sc._jvm.datamart.DataMart.write(prediction._jdf)
 
     model.save(config.model.save_path)
     logging.info(f"Model saved to {config.model.save_path}")
