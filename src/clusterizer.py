@@ -1,7 +1,10 @@
-import logging
+import os
+import shutil
 
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
+
+from src.logger import LOGGER
 
 
 class Clusterizer:
@@ -10,13 +13,15 @@ class Clusterizer:
         self.model = KMeans(k=config.model.k, seed=config.model.seed)
 
     def fit(self, data):
-        logging.info("Training")
+        LOGGER.info("Training")
         metric = ClusteringEvaluator()
         self.model = self.model.fit(data)
         pred = self.model.transform(data)
-        logging.info("Evaluating")
+        LOGGER.info("Evaluating")
         m = metric.evaluate(pred)
         return m, pred.select("prediction")
 
     def save(self, path):
+        if os.path.exists(path):
+            shutil.rmtree(path)
         self.model.save(path)

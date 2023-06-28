@@ -1,9 +1,9 @@
-import logging
 from pathlib import Path
 from pyspark.sql import SparkSession, SQLContext, DataFrame
 
 from src.utils import read_config
 from src.clusterizer import Clusterizer
+from src.logger import LOGGER
 
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "configs/default.yml"
 
@@ -22,7 +22,7 @@ def main(config):
     sc = spark.sparkContext
     sqlContext = SQLContext(spark)
 
-    logging.info("Prepare dataset")
+    LOGGER.info("Prepare dataset")
     jvm_df = sc._jvm.datamart.DataMart.getTrainData()
 
     data = DataFrame(jvm_df, sqlContext)
@@ -31,11 +31,11 @@ def main(config):
     metric, prediction = model.fit(data)
     print(f"Metric: {metric}")
 
-    logging.info("Push prediction to DataMart")
+    LOGGER.info("Push prediction to DataMart")
     sc._jvm.datamart.DataMart.write(prediction._jdf)
 
     model.save(config.model.save_path)
-    logging.info(f"Model saved to {config.model.save_path}")
+    LOGGER.info(f"Model saved to {config.model.save_path}")
 
 
 if __name__ == "__main__":
