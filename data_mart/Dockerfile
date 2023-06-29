@@ -1,4 +1,4 @@
-FROM jupyter/pyspark-notebook
+FROM jupyter/pyspark-notebook:spark-3.4.1
 
 WORKDIR /app
 

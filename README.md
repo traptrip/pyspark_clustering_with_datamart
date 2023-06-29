@@ -1,5 +1,4 @@
 # Pyspark Clustering
-ITMO Big data course lab6
 
 Dataset: [openfoodfacts](https://world.openfoodfacts.org/data)
 
@@ -11,7 +10,7 @@ sh data/download_data.sh
 
 ## Create a sample
 ```bash
-python src/prepare_dataset.py
+python data_producer/prepare_dataset.py
 ```
 
 # Run
@@ -21,22 +20,16 @@ docker compose up --build
 
 # Run PySpark example 
 ```bash
-python src/word_count.py
+python pyspark_clusterizer/src/word_count.py
 ```
 
 # Project structure
 ```
-├── configs                           <- Configs for the project
-│
 ├── data                              <- Dir where dataset will be placed
 │   └── download_data.sh                <- Download raw data
 │
-├── src                               <- Training utils
-│   ├── clusterizer.py                  <- Main class of clustering algorithm
-│   ├── word_count.py                   <- Word Count baseline example
-│   └── utils.py                        <- Running utils
-│
-├── main.py                           <- Script to get cluster model
-├── requirements.txt                  <- Project requirements
+├── data_producer/                    <- Data producer/preparer container
+├── pyspark_clusterizer/              <- Clusterization model container
+├── data_mart/                        <- DataMart container
 └── README.md                         <- Project documentation
 ```

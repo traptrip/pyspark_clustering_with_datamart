@@ -1,0 +1,4 @@
+pyspark==3.4.0
+redis==4.5.5
+fastapi==0.88.0
+uvicorn==0.21.1

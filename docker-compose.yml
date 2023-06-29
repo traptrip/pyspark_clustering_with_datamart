@@ -1,24 +1,39 @@
 version: '3.8'
 
 services:
-  app:
-    container_name: app
-    build: .
-    image: pythondestroyer/pyspark_clustering:main
+  pyspark_clusterizer:
+    container_name: pyspark_clusterizer
+    build: 
+      context: ./pyspark_clusterizer
+      dockerfile: Dockerfile
+    image: pythondestroyer/pyspark_clusterizer:main
     command: python main.py
+    depends_on: 
+      - data_mart
     volumes: 
-      - ./data/:/app/data
+      - ./models/:/app/data
+
+  data_mart: 
+    container_name: data_mart
+    build:
+      context: ./data_mart
+      dockerfile: Dockerfile
+    image: pythondestroyer/data_mart:main
+    shm_size: '8gb'
+    command: python api.py
     depends_on: 
       - redis
-      - store_dataset
+      - data_producer
+    ports: 
+      - 8000:8000
 
-  store_dataset: 
-    container_name: store_dataset
-    build:
-      context: ./data_storer
+  data_producer:
+    container_name: data_producer
+    build: 
+      context: ./data_producer
       dockerfile: Dockerfile
-    image: pythondestroyer/scala_data_storer:main
-    command: sbt run
+    image: pythondestroyer/data_producer:main
+    command: python store_data.py
     volumes: 
       - ./data/:/app/data
     depends_on: 
