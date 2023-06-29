@@ -11,7 +11,7 @@ services:
     depends_on: 
       - data_mart
     volumes: 
-      - ./models/:/app/data
+      - ./models/:/app/models
 
   data_mart: 
     container_name: data_mart

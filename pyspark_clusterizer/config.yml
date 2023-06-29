@@ -1,4 +1,4 @@
 model:
   k: 5
   seed: 42
-  save_path: data/clusterizer.model
+  save_path: models/clusterizer.model
