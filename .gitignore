@@ -169,3 +169,4 @@ clusterizer.model/
 project/
 target/
 .DS_Store
+.metals
